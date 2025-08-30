@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turkcell Kurumsal Cihaz Teklif Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f5; /* Turkcell Pasaj referanslı arka plan rengi */
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 1.5rem;
+        }
+        .accordion-item.active .accordion-content {
+            padding: 1.5rem;
+        }
+        .accordion-button:hover {
+            background-color: #fcfcfc;
+        }
+        .accordion-item.active .accordion-button {
+             background-color: #fff;
+             border-left-color: #ffc900; /* Turkcell Sarısı Vurgu Rengi */
+        }
+        .accordion-button svg {
+            transition: transform 0.3s ease-out;
+        }
+        .accordion-item.active .accordion-button svg {
+            transform: rotate(180deg);
+        }
+        .text-gradient {
+            background-image: linear-gradient(to right, #ffc900, #0073e6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8">
+        
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-blue-600">Turkcell Kurumsal Cihaz Teklifleri</h1>
+            <p class="text-gray-500 mt-2">Kemal Kirazcı'nın kişisel paylaşım listesidir.</p>
+            <p class="text-sm font-semibold text-gray-700 mt-2 tracking-wider">AĞUSTOS 2025 FİYAT LİSTESİ</p>
+            <div class="mt-4 inline-flex items-center space-x-6 bg-white py-2 px-4 rounded-full shadow-sm">
+                 <a href="tel:05373985880" class="flex items-center text-gray-600 hover:text-[#000033] transition" title="Telefon Et">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
+                    <span class="text-sm">0537 398 58 80</span>
+                </a>
+                <a href="mailto:kemal.kirazci@kurumsal.turkcell.com.tr" class="flex items-center text-gray-600 hover:text-[#000033] transition" title="E-posta Gönder">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                     <span class="text-sm">E-posta Gönder</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Accordion container -->
+        <div id="accordion-container" class="space-y-3">
+            <!-- Device items will be populated here by JS -->
+        </div>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const devices = [
+                 { name: 'Iphone 13 128 GB', plans: [ { months: 3, amount: 12999 }, { months: 6, amount: 7055 }, { months: 12, amount: 4126 }, { months: 24, amount: 2744 } ] },
+                 { name: 'Iphone 16 128 GB', plans: [ { months: 6, amount: 13850 }, { months: 12, amount: 8100 }, { months: 24, amount: 5386 } ] },
+                 { name: 'Iphone 16E 128 GB', plans: [ { months: 3, amount: 16666 }, { months: 6, amount: 10096 }, { months: 12, amount: 5290 }, { months: 24, amount: 3518 } ] },
+                 { name: 'Iphone 16 Pro 256 GB', plans: [ { months: 6, amount: 19290 }, { months: 12, amount: 11282 }, { months: 24, amount: 7502 } ] },
+                 { name: 'Iphone 16 Pro 128 GB', plans: [ { months: 6, amount: 18118 }, { months: 12, amount: 11282 }, { months: 24, amount: 7047 } ] },
+                 { name: 'Samsung S25 Ultra 512 GB', plans: [ { months: 3, amount: 34149 }, { months: 6, amount: 18534 }, { months: 12, amount: 10840 }, { months: 24, amount: 7208 } ] },
+                 { name: 'Samsung S25 256 GB', plans: [ { months: 3, amount: 19183 }, { months: 6, amount: 10447 }, { months: 12, amount: 6147 }, { months: 24, amount: 4128 } ] }
+            ];
+
+            const accordionContainer = document.getElementById('accordion-container');
+            const formatter = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' });
+
+            devices.forEach((device, index) => {
+                const plansHtml = device.plans.map(plan => {
+                    const totalAmount = formatter.format(plan.amount * plan.months);
+                    return `
+                        <div class="bg-gray-50 p-4 rounded-lg text-center">
+                            <p class="text-sm font-semibold text-gray-500">${plan.months} Ay</p>
+                            <p class="text-xl font-bold text-[#000033] my-1">${formatter.format(plan.amount)}</p>
+                            <p class="text-xs text-gray-400">Toplam: ${totalAmount}</p>
+                        </div>
+                    `;
+                }).join('');
+
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item bg-white rounded-lg shadow-sm';
+                accordionItem.innerHTML = `
+                    <button class="accordion-button w-full text-left p-6 flex justify-between items-center border-l-4 border-transparent">
+                        <span class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-blue-600">${device.name}</span>
+                        <svg class="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            ${plansHtml}
+                        </div>
+                    </div>
+                `;
+                accordionContainer.appendChild(accordionItem);
+            });
+            
+            accordionContainer.addEventListener('click', function(event) {
+                const button = event.target.closest('.accordion-button');
+                if (!button) return;
+
+                const accordionItem = button.parentElement;
+                const content = accordionItem.querySelector('.accordion-content');
+                
+                // Close other items
+                document.querySelectorAll('.accordion-item').forEach(item => {
+                    if (item !== accordionItem && item.classList.contains('active')) {
+                        item.classList.remove('active');
+                        item.querySelector('.accordion-content').style.maxHeight = '0px';
+                    }
+                });
+
+                // Toggle current item
+                accordionItem.classList.toggle('active');
+                if (accordionItem.classList.contains('active')) {
+                    content.style.maxHeight = content.scrollHeight + 50 + 'px'; // +50 for padding
+                } else {
+                    content.style.maxHeight = '0px';
+                }
+            });
+
+        } catch (error) {
+            console.error('Uygulama başlatılırken bir hata oluştu:', error);
+            document.body.innerHTML = '<div class="text-center p-8">Beklenmedik bir hata oluştu. Lütfen sayfayı yenileyin.</div>';
+        }
+    });
+    </script>
+</body>
+</html>
+
