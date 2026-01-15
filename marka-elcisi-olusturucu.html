@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Marka Elçisi Oluşturucu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .gradient-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+        }
+        .input-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #667eea;
+            outline: none;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .output-section {
+            display: none;
+        }
+        .output-section.active {
+            display: block;
+        }
+        .copy-btn {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .output-box:hover .copy-btn {
+            opacity: 1;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="container mx-auto max-w-6xl p-4 sm:p-6 md:p-8">
+
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <div class="inline-block mb-4">
+                <svg class="w-16 h-16 mx-auto text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold gradient-text mb-3">AI Marka Elçisi Oluşturucu</h1>
+            <p class="text-gray-400 text-lg">Markanız için benzersiz dijital maskot ve içerik stratejisi</p>
+            <div class="mt-4 inline-flex items-center px-4 py-2 rounded-full glass-card">
+                <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                <span class="text-sm text-gray-300">5 Modül Aktif</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="grid lg:grid-cols-2 gap-8">
+
+            <!-- Input Panel -->
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Marka Bilgileri
+                </h2>
+
+                <form id="brandForm" class="space-y-5">
+                    <!-- Marka Adı -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Marka Adı *</label>
+                        <input type="text" id="brandName" required class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-500" placeholder="Örn: TechVibe">
+                    </div>
+
+                    <!-- Sektör -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Sektör *</label>
+                        <select id="sector" required class="input-field w-full px-4 py-3 rounded-xl text-white">
+                            <option value="">Seçiniz</option>
+                            <option value="teknoloji">Teknoloji</option>
+                            <option value="moda">Moda & Giyim</option>
+                            <option value="gida">Gıda & İçecek</option>
+                            <option value="saglik">Sağlık & Wellness</option>
+                            <option value="egitim">Eğitim</option>
+                            <option value="finans">Finans & Bankacılık</option>
+                            <option value="eglence">Eğlence & Medya</option>
+                            <option value="spor">Spor & Fitness</option>
+                            <option value="guzellik">Güzellik & Kozmetik</option>
+                            <option value="seyahat">Seyahat & Turizm</option>
+                            <option value="otomotiv">Otomotiv</option>
+                            <option value="diger">Diğer</option>
+                        </select>
+                    </div>
+
+                    <!-- Marka Değerleri -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Marka Değerleri *</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="values" value="yenilikci" class="w-4 h-4 rounded">
+                                <span class="text-sm">Yenilikçi</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="values" value="guvenilir" class="w-4 h-4 rounded">
+                                <span class="text-sm">Güvenilir</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="values" value="eglenceli" class="w-4 h-4 rounded">
+                                <span class="text-sm">Eğlenceli</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="values" value="profesyonel" class="w-4 h-4 rounded">
+                                <span class="text-sm">Profesyonel</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="values" value="samimi" class="w-4 h-4 rounded">
+                                <span class="text-sm">Samimi</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="values" value="luks" class="w-4 h-4 rounded">
+                                <span class="text-sm">Lüks</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="values" value="surdurulebilir" class="w-4 h-4 rounded">
+                                <span class="text-sm">Sürdürülebilir</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="values" value="cesur" class="w-4 h-4 rounded">
+                                <span class="text-sm">Cesur</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Hedef Kitle Yaşı -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Hedef Kitle Yaş Aralığı</label>
+                        <select id="targetAge" class="input-field w-full px-4 py-3 rounded-xl text-white">
+                            <option value="18-24">18-24 (Gen Z)</option>
+                            <option value="25-34" selected>25-34 (Millennials)</option>
+                            <option value="35-44">35-44 (Gen X)</option>
+                            <option value="45-54">45-54</option>
+                            <option value="genel">Genel Kitle</option>
+                        </select>
+                    </div>
+
+                    <!-- Karakter Cinsiyeti -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Karakter Tercihi</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="gender" value="kadin" class="w-4 h-4">
+                                <span class="text-sm">Kadın</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="gender" value="erkek" class="w-4 h-4">
+                                <span class="text-sm">Erkek</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="gender" value="notr" checked class="w-4 h-4">
+                                <span class="text-sm">Nötr/Androgynous</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Platformlar -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Aktif Platformlar</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="platforms" value="instagram" checked class="w-4 h-4 rounded">
+                                <span class="text-sm">Instagram</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="platforms" value="tiktok" checked class="w-4 h-4 rounded">
+                                <span class="text-sm">TikTok</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="platforms" value="youtube" class="w-4 h-4 rounded">
+                                <span class="text-sm">YouTube</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="platforms" value="twitter" class="w-4 h-4 rounded">
+                                <span class="text-sm">Twitter/X</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" name="platforms" value="linkedin" class="w-4 h-4 rounded">
+                                <span class="text-sm">LinkedIn</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Ek Notlar -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Ek Notlar (Opsiyonel)</label>
+                        <textarea id="notes" rows="3" class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-500" placeholder="Özel istekler, rakip bilgisi, marka hikayesi..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="gradient-btn w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span>Marka Elçisi Oluştur</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Oluşturulan Profil
+                </h2>
+
+                <!-- Tabs -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium transition" data-tab="karakter">Karakter</button>
+                    <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition" data-tab="psikoloji">Psikoloji</button>
+                    <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition" data-tab="gorsel">Görsel</button>
+                    <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition" data-tab="hikaye">Hikaye</button>
+                    <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition" data-tab="strateji">Strateji</button>
+                    <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 transition" data-tab="json">JSON</button>
+                </div>
+
+                <!-- Output Content -->
+                <div id="outputContainer" class="min-h-[400px]">
+                    <div class="text-center text-gray-400 py-20">
+                        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <p>Formu doldurup "Marka Elçisi Oluştur" butonuna tıklayın</p>
+                    </div>
+
+                    <!-- Karakter Tab -->
+                    <div id="tab-karakter" class="output-section">
+                        <div class="output-box relative bg-white/5 rounded-xl p-5 space-y-4">
+                            <button class="copy-btn absolute top-3 right-3 p-2 rounded-lg bg-white/10 hover:bg-white/20" onclick="copySection('karakter')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <div id="karakterContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Psikoloji Tab -->
+                    <div id="tab-psikoloji" class="output-section">
+                        <div class="output-box relative bg-white/5 rounded-xl p-5 space-y-4">
+                            <button class="copy-btn absolute top-3 right-3 p-2 rounded-lg bg-white/10 hover:bg-white/20" onclick="copySection('psikoloji')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <div id="psikolojiContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Görsel Tab -->
+                    <div id="tab-gorsel" class="output-section">
+                        <div class="output-box relative bg-white/5 rounded-xl p-5 space-y-4">
+                            <button class="copy-btn absolute top-3 right-3 p-2 rounded-lg bg-white/10 hover:bg-white/20" onclick="copySection('gorsel')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <div id="gorselContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Hikaye Tab -->
+                    <div id="tab-hikaye" class="output-section">
+                        <div class="output-box relative bg-white/5 rounded-xl p-5 space-y-4">
+                            <button class="copy-btn absolute top-3 right-3 p-2 rounded-lg bg-white/10 hover:bg-white/20" onclick="copySection('hikaye')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <div id="hikayeContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Strateji Tab -->
+                    <div id="tab-strateji" class="output-section">
+                        <div class="output-box relative bg-white/5 rounded-xl p-5 space-y-4">
+                            <button class="copy-btn absolute top-3 right-3 p-2 rounded-lg bg-white/10 hover:bg-white/20" onclick="copySection('strateji')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <div id="stratejiContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- JSON Tab -->
+                    <div id="tab-json" class="output-section">
+                        <div class="output-box relative bg-white/5 rounded-xl p-5">
+                            <button class="copy-btn absolute top-3 right-3 p-2 rounded-lg bg-white/10 hover:bg-white/20" onclick="copyJSON()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <pre id="jsonOutput" class="text-sm text-green-400 overflow-x-auto"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download Button -->
+                <button id="downloadBtn" class="hidden w-full mt-4 py-3 rounded-xl font-medium bg-white/10 hover:bg-white/20 transition flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span>JSON Olarak İndir</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-10 text-gray-500 text-sm">
+            <p>AI Marka Elçisi Oluşturucu - Dijital Maskot Tasarım Aracı</p>
+            <p class="mt-1">Bu karakterler açıkça "marka maskotu" olarak etiketlenmelidir.</p>
+        </footer>
+    </div>
+
+    <script>
+    // Data pools for generation
+    const dataPool = {
+        names: {
+            kadin: ['Aylin', 'Deniz', 'Ece', 'Selin', 'Zeynep', 'Elif', 'Cansu', 'Melis', 'Defne', 'Azra', 'Luna', 'Nova', 'Aria', 'Maya', 'Zara'],
+            erkek: ['Kaan', 'Cem', 'Deniz', 'Baran', 'Efe', 'Mert', 'Kerem', 'Alp', 'Arda', 'Can', 'Leo', 'Neo', 'Axel', 'Max', 'Kai'],
+            notr: ['Deniz', 'Toprak', 'Derya', 'Evren', 'Rüzgar', 'Yağmur', 'Güneş', 'Duru', 'Onur', 'Özgür', 'Sky', 'River', 'Storm', 'Phoenix', 'Robin']
+        },
+        surnames: ['Yıldız', 'Kaya', 'Demir', 'Çelik', 'Ak', 'Koç', 'Arslan', 'Şahin', 'Kurt', 'Aydın', 'Tekin', 'Polat', 'Korkmaz', 'Özdemir', 'Erdoğan'],
+        mbtiTypes: {
+            yenilikci: ['ENTP', 'INTP', 'INTJ', 'ENTJ'],
+            eglenceli: ['ENFP', 'ESFP', 'ESTP', 'ENTP'],
+            guvenilir: ['ISTJ', 'ISFJ', 'ESTJ', 'ESFJ'],
+            profesyonel: ['INTJ', 'ENTJ', 'ISTJ', 'ESTJ'],
+            samimi: ['ENFJ', 'INFJ', 'ESFJ', 'ISFJ'],
+            luks: ['ENTJ', 'INTJ', 'ESTP', 'ISTP'],
+            surdurulebilir: ['INFJ', 'INFP', 'ENFJ', 'ISFJ'],
+            cesur: ['ESTP', 'ENTP', 'ENTJ', 'ISTP']
+        },
+        archetypes: {
+            yenilikci: ['Yaratıcı', 'Kaşif', 'Sihirbaz'],
+            eglenceli: ['Soytarı', 'Kahraman', 'Sıradan Adam'],
+            guvenilir: ['Bakıcı', 'Yönetici', 'Bilge'],
+            profesyonel: ['Yönetici', 'Kahraman', 'Bilge'],
+            samimi: ['Sıradan Adam', 'Bakıcı', 'Aşık'],
+            luks: ['Yönetici', 'Sihirbaz', 'Aşık'],
+            surdurulebilir: ['Bakıcı', 'Kaşif', 'Yaratıcı'],
+            cesur: ['Kahraman', 'Asi', 'Kaşif']
+        },
+        toneOfVoice: {
+            eglenceli: ['enerjik', 'espirili', 'pozitif', 'samimi'],
+            profesyonel: ['güvenilir', 'bilgilendirici', 'net', 'otoriter'],
+            samimi: ['sıcak', 'dostça', 'empatik', 'içten'],
+            luks: ['sofistike', 'zarif', 'seçici', 'premium'],
+            cesur: ['cesur', 'provokatif', 'ilham verici', 'güçlü']
+        },
+        fashionStyles: {
+            teknoloji: ['minimalist techwear', 'smart casual', 'futuristik aksesuar'],
+            moda: ['avant-garde', 'haute couture', 'streetwear fusion'],
+            gida: ['casual şık', 'mutfak şefi esintili', 'organik natural'],
+            saglik: ['athleisure', 'temiz minimal', 'wellness estetik'],
+            egitim: ['smart casual', 'preppy modern', 'akademik şık'],
+            finans: ['corporate chic', 'power dressing', 'modern klasik'],
+            eglence: ['bold streetwear', 'pop kültür', 'statement pieces'],
+            spor: ['performans giyim', 'athleisure premium', 'sporcu estetik'],
+            guzellik: ['glam minimal', 'beauty influencer', 'soft aesthetic'],
+            seyahat: ['boho chic', 'practical luxury', 'explorer style'],
+            otomotiv: ['sleek modern', 'racing inspired', 'luxury casual']
+        },
+        contentTypes: {
+            instagram: ['carousel eğitim', 'reels trendler', 'stories günlük', 'IGTV derinlemesine'],
+            tiktok: ['trend challenge', 'duet/stitch', 'eğitici kısa', 'behind scenes'],
+            youtube: ['vlog', 'tutorial', 'review', 'podcast'],
+            twitter: ['thread bilgi', 'hızlı tips', 'sektör yorumu', 'engagement tweet'],
+            linkedin: ['thought leadership', 'kariyer içgörü', 'profesyonel hikaye', 'sektör analizi']
+        },
+        weakPoints: [
+            'Mükemmeliyetçi olabilir, bazen detaylarda kaybolur',
+            'Aşırı tutkulu, dengeli kalmakta zorlanabilir',
+            'Sabırsız, hızlı sonuç ister',
+            'Aşırı özeleştirel, kendine karşı sert',
+            'İnatçı, fikirlerinden kolay vazgeçmez',
+            'Aşırı idealist, gerçekçiliği kaçırabilir'
+        ],
+        motivations: [
+            'İnsanların hayatlarında fark yaratmak',
+            'Sektörde yenilik ve değişim öncüsü olmak',
+            'Topluluğu bir araya getirmek ve ilham vermek',
+            'Bilgiyi demokratikleştirmek ve erişilebilir kılmak',
+            'Sürdürülebilir bir gelecek için katkı sağlamak',
+            'İnsanların potansiyellerini keşfetmelerine yardımcı olmak'
+        ]
+    };
+
+    // Global variable to store generated profile
+    let generatedProfile = null;
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if (!b.classList.contains('active')) {
+                    b.classList.add('bg-white/10');
+                }
+            });
+            this.classList.add('active');
+            this.classList.remove('bg-white/10');
+
+            document.querySelectorAll('.output-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+        });
+    });
+
+    // Form submission
+    document.getElementById('brandForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        generateProfile();
+    });
+
+    function getRandomItem(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateUsername(name, brand) {
+        const suffixes = ['official', 'co', 'hq', 'world', 'life', 'zone', 'hub'];
+        const cleanName = name.toLowerCase().replace(/[^a-z]/g, '');
+        const cleanBrand = brand.toLowerCase().replace(/[^a-z]/g, '');
+        const random = Math.floor(Math.random() * 100);
+        const patterns = [
+            `${cleanName}_${cleanBrand}`,
+            `${cleanName}.${getRandomItem(suffixes)}`,
+            `${cleanBrand}${cleanName}`,
+            `${cleanName}${random}`
+        ];
+        return getRandomItem(patterns);
+    }
+
+    function generateDOB(targetAge) {
+        const ageRanges = {
+            '18-24': [18, 24],
+            '25-34': [23, 30],
+            '35-44': [30, 38],
+            '45-54': [35, 42],
+            'genel': [25, 35]
+        };
+        const [minAge, maxAge] = ageRanges[targetAge] || [25, 32];
+        const age = minAge + Math.floor(Math.random() * (maxAge - minAge));
+        const year = new Date().getFullYear() - age;
+        const month = Math.floor(Math.random() * 12) + 1;
+        const day = Math.floor(Math.random() * 28) + 1;
+        return `${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${year}`;
+    }
+
+    function getZodiac(dob) {
+        const [day, month] = dob.split('.').map(Number);
+        const signs = [
+            [20, 'Oğlak', 'Kova'], [19, 'Kova', 'Balık'], [20, 'Balık', 'Koç'],
+            [20, 'Koç', 'Boğa'], [21, 'Boğa', 'İkizler'], [21, 'İkizler', 'Yengeç'],
+            [22, 'Yengeç', 'Aslan'], [23, 'Aslan', 'Başak'], [23, 'Başak', 'Terazi'],
+            [23, 'Terazi', 'Akrep'], [22, 'Akrep', 'Yay'], [22, 'Yay', 'Oğlak']
+        ];
+        const [cutoff, before, after] = signs[month - 1];
+        return day < cutoff ? before : after;
+    }
+
+    function generateProfile() {
+        const brandName = document.getElementById('brandName').value;
+        const sector = document.getElementById('sector').value;
+        const targetAge = document.getElementById('targetAge').value;
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+        const notes = document.getElementById('notes').value;
+
+        const values = Array.from(document.querySelectorAll('input[name="values"]:checked')).map(cb => cb.value);
+        const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
+
+        if (values.length === 0) {
+            alert('Lütfen en az bir marka değeri seçin.');
+            return;
+        }
+
+        // Generate character details
+        const firstName = getRandomItem(dataPool.names[gender]);
+        const lastName = getRandomItem(dataPool.surnames);
+        const fullName = `${firstName} ${lastName}`;
+        const username = generateUsername(firstName, brandName);
+        const dob = generateDOB(targetAge);
+        const zodiac = getZodiac(dob);
+
+        // Psychology
+        const primaryValue = values[0];
+        const mbti = getRandomItem(dataPool.mbtiTypes[primaryValue] || ['ENFP']);
+        const archetype = getRandomItem(dataPool.archetypes[primaryValue] || ['Yaratıcı']);
+        const tones = values.flatMap(v => dataPool.toneOfVoice[v] || []).slice(0, 3);
+        if (tones.length === 0) tones.push('profesyonel', 'samimi');
+
+        // Visual
+        const bodyTypes = ['atletik', 'fit', 'doğal', 'zarif'];
+        const hairColors = ['koyu kahve', 'siyah', 'bal sarısı', 'kestane', 'platin'];
+        const eyeColors = ['ela', 'kahve', 'yeşil', 'mavi-gri', 'amber'];
+        const skinTones = ['açık ten', 'bronz', 'buğday', 'koyu'];
+
+        const fashionStyle = dataPool.fashionStyles[sector] || dataPool.fashionStyles.teknoloji;
+
+        // Generate master image prompt
+        const genderPrompt = {
+            kadin: 'young professional woman',
+            erkek: 'young professional man',
+            notr: 'androgynous young professional person'
+        };
+
+        const masterPrompt = `Photorealistic portrait of a ${genderPrompt[gender]}, ${getRandomItem(bodyTypes)} build, ${getRandomItem(hairColors)} hair, ${getRandomItem(eyeColors)} eyes, ${getRandomItem(skinTones)}, wearing ${getRandomItem(fashionStyle)}, confident and approachable expression, modern studio lighting, ${sector} industry aesthetic, high-end fashion photography style, 8K resolution, shot on Sony A7R IV`;
+
+        // Content strategy
+        const contentStrategy = {};
+        platforms.forEach(platform => {
+            contentStrategy[platform] = {
+                iceriktTuru: dataPool.contentTypes[platform] || ['genel içerik'],
+                paylasimsikligi: platform === 'tiktok' ? 'Günde 1-2' : platform === 'instagram' ? 'Haftada 4-5' : 'Haftada 2-3',
+                eniyiSaat: platform === 'linkedin' ? '09:00-11:00' : '19:00-21:00'
+            };
+        });
+
+        // Bio generation
+        const bioTemplates = [
+            `${brandName}'in dijital yüzü. ${archetype} ruhuyla ${sector} dünyasında iz bırakıyor. ${values.slice(0, 2).join(' & ')} değerlerini benimsiyor. Hayallerin peşinden koşanlara ilham veriyor.`,
+            `${sector} tutkunu, ${brandName} elçisi. ${mbti} kişiliğiyle özgün bakış açısı sunuyor. ${values[0]} yaklaşımıyla fark yaratıyor. Birlikte büyüyelim!`,
+            `${brandName} ailesinin dijital sesi. ${zodiac} burcu enerjisiyle, ${archetype} arketipiyle hareket ediyor. ${sector} sektöründe yeni nesil içerik üreticisi.`
+        ];
+
+        // Build the complete profile
+        generatedProfile = {
+            meta: {
+                olusturulmaTarihi: new Date().toISOString(),
+                markaAdi: brandName,
+                sektor: sector,
+                tur: "Marka Maskotu/Dijital Elçi",
+                uyari: "Bu karakter açıkça 'yapay zeka destekli marka maskotu' olarak etiketlenmelidir."
+            },
+            karakterTasarimi: {
+                tamAd: fullName,
+                kullaniciAdi: `@${username}`,
+                dogumTarihi: dob,
+                burc: zodiac,
+                yasAraligi: targetAge,
+                konum: "İstanbul, Türkiye"
+            },
+            psikolojikProfil: {
+                mbti: mbti,
+                arketip: archetype,
+                sesTonu: tones,
+                zayifNoktalar: getRandomItem(dataPool.weakPoints),
+                anaMotivasyonlar: getRandomItem(dataPool.motivations),
+                markaDeserleri: values
+            },
+            gorselKimlik: {
+                vucutTipi: getRandomItem(bodyTypes),
+                sacRengi: getRandomItem(hairColors),
+                gozRengi: getRandomItem(eyeColors),
+                tenRengi: getRandomItem(skinTones),
+                giyimTarzi: fashionStyle,
+                masterGorselPrompt: masterPrompt
+            },
+            hikaye: {
+                bio150Kelime: getRandomItem(bioTemplates),
+                karakterHikayesi: `${fullName}, ${sector} sektöründe tutkulu bir profesyonel olarak ${brandName}'in değerlerini temsil ediyor. ${archetype} arketipiyle hareket eden ${firstName}, ${values.join(', ')} gibi değerleri benimsiyor. ${mbti} kişilik tipine sahip olan karakter, hedef kitlenin günlük yaşamına değer katmayı amaçlıyor.`,
+                iletisimTarzi: `${tones.join(', ')} bir üslupla iletişim kurar. Takipçileriyle samimi ama profesyonel bir ilişki geliştirir.`
+            },
+            icerikStratejisi: {
+                aktifPlatformlar: platforms,
+                platformDetay: contentStrategy,
+                icerikTemaslari: [
+                    `${sector} trendleri ve ipuçları`,
+                    `Günlük yaşam ve behind-the-scenes`,
+                    `Marka değerleriyle uyumlu lifestyle`,
+                    `Etkileşim odaklı Q&A ve anketler`
+                ],
+                hashtagOneri: [
+                    `#${brandName.replace(/\s/g, '')}`,
+                    `#${username}`,
+                    `#${sector}turkiye`,
+                    `#dijitalmaskot`
+                ]
+            }
+        };
+
+        // Display the profile
+        displayProfile();
+    }
+
+    function displayProfile() {
+        if (!generatedProfile) return;
+
+        // Show first tab
+        document.querySelector('.tab-btn[data-tab="karakter"]').click();
+
+        // Karakter
+        document.getElementById('karakterContent').innerHTML = `
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-gray-400 text-sm">Tam Ad</p>
+                    <p class="font-bold text-lg">${generatedProfile.karakterTasarimi.tamAd}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm">Kullanıcı Adı</p>
+                    <p class="font-bold text-lg text-purple-400">${generatedProfile.karakterTasarimi.kullaniciAdi}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm">Doğum Tarihi</p>
+                    <p class="font-medium">${generatedProfile.karakterTasarimi.dogumTarihi}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm">Burç</p>
+                    <p class="font-medium">${generatedProfile.karakterTasarimi.burc}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm">Yaş Aralığı</p>
+                    <p class="font-medium">${generatedProfile.karakterTasarimi.yasAraligi}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm">Konum</p>
+                    <p class="font-medium">${generatedProfile.karakterTasarimi.konum}</p>
+                </div>
+            </div>
+            <div class="mt-4 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+                <p class="text-yellow-400 text-sm font-medium">Bu karakter açıkça "AI destekli marka maskotu" olarak etiketlenmelidir.</p>
+            </div>
+        `;
+
+        // Psikoloji
+        document.getElementById('psikolojiContent').innerHTML = `
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-purple-500/20 px-4 py-2 rounded-lg">
+                        <p class="text-gray-400 text-xs">MBTI</p>
+                        <p class="font-bold text-xl text-purple-400">${generatedProfile.psikolojikProfil.mbti}</p>
+                    </div>
+                    <div class="bg-blue-500/20 px-4 py-2 rounded-lg">
+                        <p class="text-gray-400 text-xs">Arketip</p>
+                        <p class="font-bold text-xl text-blue-400">${generatedProfile.psikolojikProfil.arketip}</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">Ses Tonu</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${generatedProfile.psikolojikProfil.sesTonu.map(t => `<span class="px-3 py-1 bg-white/10 rounded-full text-sm">${t}</span>`).join('')}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">Marka Değerleri</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${generatedProfile.psikolojikProfil.markaDeserleri.map(v => `<span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm">${v}</span>`).join('')}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm">Zayıf Noktalar</p>
+                    <p class="text-sm mt-1">${generatedProfile.psikolojikProfil.zayifNoktalar}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm">Ana Motivasyon</p>
+                    <p class="text-sm mt-1">${generatedProfile.psikolojikProfil.anaMotivasyonlar}</p>
+                </div>
+            </div>
+        `;
+
+        // Görsel
+        document.getElementById('gorselContent').innerHTML = `
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-400 text-sm">Vücut Tipi</p>
+                        <p class="font-medium">${generatedProfile.gorselKimlik.vucutTipi}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm">Saç Rengi</p>
+                        <p class="font-medium">${generatedProfile.gorselKimlik.sacRengi}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm">Göz Rengi</p>
+                        <p class="font-medium">${generatedProfile.gorselKimlik.gozRengi}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm">Ten Rengi</p>
+                        <p class="font-medium">${generatedProfile.gorselKimlik.tenRengi}</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">Giyim Tarzı</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${generatedProfile.gorselKimlik.giyimTarzi.map(s => `<span class="px-3 py-1 bg-pink-500/20 text-pink-400 rounded-full text-sm">${s}</span>`).join('')}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">Master Görsel Prompt (Midjourney/Flux)</p>
+                    <div class="bg-black/30 p-4 rounded-lg">
+                        <code class="text-green-400 text-sm">${generatedProfile.gorselKimlik.masterGorselPrompt}</code>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Hikaye
+        document.getElementById('hikayeContent').innerHTML = `
+            <div class="space-y-4">
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">Bio (150 Kelime)</p>
+                    <div class="bg-white/5 p-4 rounded-lg">
+                        <p class="italic">"${generatedProfile.hikaye.bio150Kelime}"</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">Karakter Hikayesi</p>
+                    <p class="text-sm leading-relaxed">${generatedProfile.hikaye.karakterHikayesi}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">İletişim Tarzı</p>
+                    <p class="text-sm">${generatedProfile.hikaye.iletisimTarzi}</p>
+                </div>
+            </div>
+        `;
+
+        // Strateji
+        let platformHtml = '';
+        Object.entries(generatedProfile.icerikStratejisi.platformDetay).forEach(([platform, details]) => {
+            platformHtml += `
+                <div class="bg-white/5 p-4 rounded-lg">
+                    <p class="font-bold text-purple-400 capitalize mb-2">${platform}</p>
+                    <p class="text-sm"><span class="text-gray-400">Sıklık:</span> ${details.paylasimsikligi}</p>
+                    <p class="text-sm"><span class="text-gray-400">En İyi Saat:</span> ${details.eniyiSaat}</p>
+                    <p class="text-sm"><span class="text-gray-400">İçerik:</span> ${details.iceriktTuru.slice(0, 2).join(', ')}</p>
+                </div>
+            `;
+        });
+
+        document.getElementById('stratejiContent').innerHTML = `
+            <div class="space-y-4">
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">Platform Stratejisi</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${platformHtml}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">İçerik Temaları</p>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                        ${generatedProfile.icerikStratejisi.icerikTemaslari.map(t => `<li>${t}</li>`).join('')}
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm mb-2">Hashtag Önerileri</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${generatedProfile.icerikStratejisi.hashtagOneri.map(h => `<span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">${h}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // JSON
+        document.getElementById('jsonOutput').textContent = JSON.stringify(generatedProfile, null, 2);
+
+        // Show download button
+        document.getElementById('downloadBtn').classList.remove('hidden');
+    }
+
+    function copySection(section) {
+        const content = document.getElementById(section + 'Content').innerText;
+        navigator.clipboard.writeText(content).then(() => {
+            alert('Kopyalandı!');
+        });
+    }
+
+    function copyJSON() {
+        const json = JSON.stringify(generatedProfile, null, 2);
+        navigator.clipboard.writeText(json).then(() => {
+            alert('JSON kopyalandı!');
+        });
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        const json = JSON.stringify(generatedProfile, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `marka-elcisi-${generatedProfile.karakterTasarimi.kullaniciAdi.replace('@', '')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+    </script>
+</body>
+</html>
