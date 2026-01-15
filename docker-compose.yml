@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  rejista:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rejista-app
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - ./credentials:/app/credentials:ro
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Opsiyonel: Redis cache (gelecek için)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: rejista-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+
+volumes:
+  redis-data:
+
+networks:
+  default:
+    name: rejista-network
