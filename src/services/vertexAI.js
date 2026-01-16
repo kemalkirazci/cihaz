@@ -209,7 +209,7 @@ class VertexAIService {
             instances: [{ structValue: { fields: this._toProtobufStruct(instanceValue) } }],
             parameters: { structValue: { fields: this._toProtobufStruct(parametersValue) } }
           }),
-          60000,
+          config.video.timeoutMs,
           'imagenAPICall'
         );
 

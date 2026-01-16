@@ -12,6 +12,12 @@ export {
   CircuitBreaker,
   RateLimiter
 } from './retry.js';
+export {
+  safeJsonParse,
+  extractJsonFromText,
+  validateObject,
+  sanitizeString
+} from './helpers.js';
 
 export default {
   logger,

@@ -20,7 +20,7 @@ import { costTracker } from '../utils/costTracker.js';
 export class ProductionAgent extends BaseAgent {
   constructor(conceptType) {
     super(`Production_${conceptType}`, {
-      pollInterval: 5000,
+      pollInterval: config.agents.productionPollInterval,
       maxConcurrent: 1
     });
 

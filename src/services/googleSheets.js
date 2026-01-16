@@ -330,6 +330,23 @@ class GoogleSheetsService {
   }
 
   /**
+   * Güvenli JSON parse
+   * @private
+   */
+  _safeJsonParse(str, defaultValue = null) {
+    if (!str || typeof str !== 'string') return defaultValue;
+    try {
+      return JSON.parse(str.trim());
+    } catch (error) {
+      logger.warn('Failed to parse JSON from Sheets', {
+        preview: str.slice(0, 100),
+        error: error.message
+      });
+      return defaultValue;
+    }
+  }
+
+  /**
    * Satırı sipariş nesnesine dönüştür
    */
   _rowToOrder(row) {
@@ -343,9 +360,9 @@ class GoogleSheetsService {
       driveFolderId: row[6] || '',
       createdAt: row[7] || '',
       updatedAt: row[8] || '',
-      analysisJson: row[9] ? JSON.parse(row[9]) : null,
-      concepts: row[10] ? JSON.parse(row[10]) : null,
-      videoUrls: row[11] ? JSON.parse(row[11]) : null,
+      analysisJson: this._safeJsonParse(row[9], null),
+      concepts: this._safeJsonParse(row[10], []),
+      videoUrls: this._safeJsonParse(row[11], []),
       totalCost: parseFloat(row[12]) || 0,
       notes: row[13] || ''
     };

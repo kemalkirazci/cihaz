@@ -1,6 +1,12 @@
 /**
  * Rejista - Gemini AI Servisi
  * Görüntü analizi, strateji oluşturma ve prompt üretimi
+ *
+ * GÜVENLİK İYİLEŞTİRMELERİ:
+ * - Güvenli JSON parsing
+ * - API key validation
+ * - Improved error handling
+ * - Response validation
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -8,18 +14,59 @@ import { config } from '../config/index.js';
 import { logger } from '../utils/logger.js';
 import { costTracker } from '../utils/costTracker.js';
 import { withRetry, withTimeout } from '../utils/retry.js';
+import { extractJsonFromText, validateObject } from '../utils/helpers.js';
+
+// Default değerler (parse hatası durumunda)
+const DEFAULT_ANALYSIS = {
+  product: { name: 'Unknown', category: 'unknown', material: 'unknown', style: 'unknown' },
+  visual: { dominantColors: ['#808080'], colorPalette: 'neutral', lighting: 'mixed', backgroundType: 'unknown' },
+  mood: { primary: 'neutral', secondary: 'unknown', targetAudience: 'general' },
+  objects: [],
+  videoSuggestions: { focusPoints: [], avoidElements: [], recommendedDuration: 60, aspectRatioRecommendation: '16:9' },
+  qualityScore: { overall: 5, sharpness: 5, composition: 5, commercialPotential: 5 }
+};
+
+const DEFAULT_QC_RESULT = {
+  passed: false,
+  overallScore: 0,
+  checks: {},
+  issues: ['QC parsing failed'],
+  recommendation: 'revise'
+};
+
+const DEFAULT_DECISION = {
+  decision: 'pause', // Güvenli tarafta kal - proceed yerine pause
+  reasoning: 'Parse hatası nedeniyle güvenli karar',
+  nextAction: 'manual_review',
+  priority: 'high',
+  warnings: ['Automated decision failed - manual review required']
+};
 
 class GeminiService {
   constructor() {
     this.genAI = null;
     this.proModel = null;
     this.flashModel = null;
+    this.initialized = false;
   }
 
   /**
    * Servisi başlat
    */
   async initialize() {
+    // API key kontrolü
+    if (!config.gemini.apiKey) {
+      const error = new Error('GEMINI_API_KEY is not configured');
+      logger.error('Gemini initialization failed: API key missing');
+      throw error;
+    }
+
+    if (config.gemini.apiKey.length < 20) {
+      const error = new Error('GEMINI_API_KEY appears to be invalid (too short)');
+      logger.error('Gemini initialization failed: API key too short');
+      throw error;
+    }
+
     try {
       this.genAI = new GoogleGenerativeAI(config.gemini.apiKey);
 
@@ -41,6 +88,10 @@ class GeminiService {
         }
       });
 
+      // Test connection with a simple request
+      await this._testConnection();
+
+      this.initialized = true;
       logger.info('Gemini servisi başlatıldı', {
         proModel: config.gemini.model,
         flashModel: config.gemini.flashModel
@@ -54,12 +105,54 @@ class GeminiService {
   }
 
   /**
+   * Bağlantıyı test et
+   */
+  async _testConnection() {
+    try {
+      const result = await withTimeout(
+        this.flashModel.generateContent('Say "OK" if you can read this.'),
+        config.gemini.connectionTestTimeoutMs,
+        'connectionTest'
+      );
+      const text = result.response.text();
+      if (!text) {
+        throw new Error('Empty response from Gemini');
+      }
+      logger.debug('Gemini connection test passed');
+    } catch (error) {
+      logger.error('Gemini connection test failed', { error: error.message });
+      throw new Error(`Gemini connection failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Servis hazır mı kontrol et
+   */
+  _ensureInitialized() {
+    if (!this.initialized) {
+      throw new Error('Gemini service not initialized. Call initialize() first.');
+    }
+  }
+
+  /**
+   * Token kullanımını kaydet
+   */
+  _trackUsage(orderId, usage, modelType = 'pro') {
+    if (!usage) return;
+
+    const inputType = modelType === 'pro' ? 'gemini_pro_input' : 'gemini_flash_input';
+    const outputType = modelType === 'pro' ? 'gemini_pro_output' : 'gemini_flash_output';
+
+    costTracker.addCost(orderId, inputType, usage.promptTokenCount || 0);
+    costTracker.addCost(orderId, outputType, usage.candidatesTokenCount || 0);
+  }
+
+  /**
    * Ürün görsellerini analiz et
-   * @param {string} orderId - Sipariş ID (maliyet takibi için)
-   * @param {Array} images - Base64 encoded görseller [{content, mimeType, name}]
-   * @returns {object} - Analiz sonuçları
    */
   async analyzeProductImages(orderId, images) {
+    this._ensureInitialized();
+
     return withRetry(
       async () => {
         if (!images || images.length === 0) {
@@ -99,49 +192,52 @@ Analiz sonucunu SADECE aşağıdaki JSON formatında döndür, başka açıklama
   "videoSuggestions": {
     "focusPoints": ["Vurgulanması gereken özellikler"],
     "avoidElements": ["Kaçınılması gereken unsurlar"],
-    "recommendedDuration": "Önerilen video süresi (saniye)",
-    "aspectRatioRecommendation": "16:9 / 9:16 / 1:1"
+    "recommendedDuration": 60,
+    "aspectRatioRecommendation": "16:9"
   },
   "qualityScore": {
-    "overall": 1-10,
-    "sharpness": 1-10,
-    "composition": 1-10,
-    "commercialPotential": 1-10
+    "overall": 7,
+    "sharpness": 7,
+    "composition": 7,
+    "commercialPotential": 7
   }
-}
-`;
+}`;
 
         // Görselleri model formatına çevir
-        const imageParts = images.map((img) => ({
+        const imageParts = images.slice(0, 10).map((img) => ({ // Max 10 görsel
           inlineData: {
             data: img.content,
-            mimeType: img.mimeType
+            mimeType: img.mimeType || 'image/jpeg'
           }
         }));
 
         const result = await withTimeout(
           this.proModel.generateContent([prompt, ...imageParts]),
-          60000,
+          config.gemini.analysisTimeoutMs,
           'imageAnalysis'
         );
 
         const response = result.response;
         const text = response.text();
 
-        // Token kullanımını kaydet
-        const usage = response.usageMetadata;
-        if (usage) {
-          costTracker.addCost(orderId, 'gemini_pro_input', usage.promptTokenCount || 0);
-          costTracker.addCost(orderId, 'gemini_pro_output', usage.candidatesTokenCount || 0);
+        this._trackUsage(orderId, response.usageMetadata, 'pro');
+
+        // Güvenli JSON parse
+        const analysis = extractJsonFromText(text, null, 'analyzeProductImages');
+
+        if (!analysis) {
+          logger.error('Failed to parse image analysis response', {
+            orderId,
+            responsePreview: text.slice(0, 200)
+          });
+          throw new Error('Invalid analysis response from Gemini');
         }
 
-        // JSON'u parse et
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-          throw new Error('Geçerli JSON yanıtı alınamadı');
+        // Temel validation
+        if (!validateObject(analysis, ['product', 'visual', 'mood'])) {
+          logger.warn('Analysis response missing required fields, using defaults', { orderId });
+          return { ...DEFAULT_ANALYSIS, ...analysis };
         }
-
-        const analysis = JSON.parse(jsonMatch[0]);
 
         logger.info('Görsel analizi tamamlandı', {
           orderId,
@@ -151,17 +247,16 @@ Analiz sonucunu SADECE aşağıdaki JSON formatında döndür, başka açıklama
 
         return analysis;
       },
-      { operationName: 'analyzeProductImages' }
+      { operationName: 'analyzeProductImages', maxAttempts: 2 }
     );
   }
 
   /**
    * Video konseptleri oluştur
-   * @param {string} orderId - Sipariş ID
-   * @param {object} analysis - Görsel analiz sonuçları
-   * @returns {Array} - 3 farklı konsept
    */
   async generateVideoConcepts(orderId, analysis) {
+    this._ensureInitialized();
+
     return withRetry(
       async () => {
         const prompt = `
@@ -181,14 +276,14 @@ Her konsept için aşağıdaki JSON formatını kullan. SADECE JSON döndür:
       "visualStyle": {
         "colorGrading": "Renk tonu açıklaması",
         "transitions": "Geçiş tipi",
-        "pace": "fast/medium/slow",
+        "pace": "fast",
         "cameraMovement": "Kamera hareketi türü"
       },
       "musicMood": "Müzik türü/mood",
       "keyScenes": [
         {
           "order": 1,
-          "duration": "saniye",
+          "duration": 15,
           "description": "Sahne açıklaması",
           "focusElement": "Odak noktası",
           "cameraAngle": "Kamera açısı"
@@ -199,72 +294,67 @@ Her konsept için aşağıdaki JSON formatını kullan. SADECE JSON döndür:
     },
     {
       "type": "MINIMAL",
-      "name": "Minimal",
-      ...
+      "name": "Minimal"
     },
     {
       "type": "CINEMATIC",
-      "name": "Sinematik",
-      ...
+      "name": "Sinematik"
     }
   ]
 }
 
-Her konsept için en az 4 sahne tanımla. Toplam video süresi ${config.video.durationSeconds} saniye olmalı.
-`;
+Her konsept için en az 4 sahne tanımla. Toplam video süresi ${config.video.durationSeconds} saniye olmalı.`;
 
         const result = await withTimeout(
           this.proModel.generateContent(prompt),
-          45000,
+          config.gemini.timeout || 45000,
           'generateConcepts'
         );
 
         const response = result.response;
         const text = response.text();
 
-        // Token kullanımını kaydet
-        const usage = response.usageMetadata;
-        if (usage) {
-          costTracker.addCost(orderId, 'gemini_pro_input', usage.promptTokenCount || 0);
-          costTracker.addCost(orderId, 'gemini_pro_output', usage.candidatesTokenCount || 0);
+        this._trackUsage(orderId, response.usageMetadata, 'pro');
+
+        const conceptsData = extractJsonFromText(text, null, 'generateVideoConcepts');
+
+        if (!conceptsData || !Array.isArray(conceptsData.concepts)) {
+          logger.error('Failed to parse concepts response', { orderId });
+          throw new Error('Invalid concepts response from Gemini');
         }
 
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-          throw new Error('Geçerli konsept JSON yanıtı alınamadı');
+        // En az 1 konsept olmalı
+        if (conceptsData.concepts.length === 0) {
+          throw new Error('No concepts generated');
         }
-
-        const conceptsData = JSON.parse(jsonMatch[0]);
 
         logger.info('Video konseptleri oluşturuldu', {
           orderId,
-          conceptCount: conceptsData.concepts?.length || 0
+          conceptCount: conceptsData.concepts.length
         });
 
         return conceptsData.concepts;
       },
-      { operationName: 'generateVideoConcepts' }
+      { operationName: 'generateVideoConcepts', maxAttempts: 2 }
     );
   }
 
   /**
    * Video üretim promptu oluştur (Veo 2 için)
-   * @param {string} orderId - Sipariş ID
-   * @param {object} concept - Video konsepti
-   * @param {object} analysis - Ürün analizi
-   * @returns {object} - Video prompt ve parametreleri
    */
   async generateVideoPrompt(orderId, concept, analysis) {
+    this._ensureInitialized();
+
     return withRetry(
       async () => {
         const prompt = `
 Sen bir AI video üretim sistemleri için profesyonel prompt mühendisisin. Google Veo 2 video üretim modeli için optimize edilmiş bir prompt yaz.
 
 ÜRÜN BİLGİLERİ:
-${JSON.stringify(analysis.product, null, 2)}
+${JSON.stringify(analysis.product || {}, null, 2)}
 
 GÖRSEL ÖZELLİKLER:
-${JSON.stringify(analysis.visual, null, 2)}
+${JSON.stringify(analysis.visual || {}, null, 2)}
 
 KONSEPT:
 ${JSON.stringify(concept, null, 2)}
@@ -288,84 +378,71 @@ Aşağıdaki JSON formatında döndür:
       "transition": "Geçiş tipi"
     }
   ]
-}
+}`;
 
-PROMPT YAZIM KURALLARI:
-1. İngilizce yaz
-2. Detaylı görsel açıklamalar kullan
-3. Hareket ve kamera hareketlerini belirt
-4. Aydınlatma ve atmosferi tanımla
-5. Ürünün özelliklerini vurgula
-6. Profesyonel ticari video kalitesi hedefle
-`;
-
-        // Flash model kullan - daha ucuz
         const result = await withTimeout(
           this.flashModel.generateContent(prompt),
-          30000,
+          config.gemini.conceptTimeoutMs,
           'generateVideoPrompt'
         );
 
         const response = result.response;
         const text = response.text();
 
-        // Token kullanımını kaydet
-        const usage = response.usageMetadata;
-        if (usage) {
-          costTracker.addCost(orderId, 'gemini_flash_input', usage.promptTokenCount || 0);
-          costTracker.addCost(orderId, 'gemini_flash_output', usage.candidatesTokenCount || 0);
-        }
+        this._trackUsage(orderId, response.usageMetadata, 'flash');
 
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-          throw new Error('Geçerli prompt JSON yanıtı alınamadı');
-        }
+        const promptData = extractJsonFromText(text, null, 'generateVideoPrompt');
 
-        const promptData = JSON.parse(jsonMatch[0]);
+        if (!promptData || !promptData.mainPrompt) {
+          logger.error('Failed to parse video prompt response', { orderId });
+          throw new Error('Invalid video prompt response from Gemini');
+        }
 
         logger.info('Video promptu oluşturuldu', {
           orderId,
           conceptType: concept.type,
-          promptLength: promptData.mainPrompt?.length || 0
+          promptLength: promptData.mainPrompt.length
         });
 
         return promptData;
       },
-      { operationName: 'generateVideoPrompt' }
+      { operationName: 'generateVideoPrompt', maxAttempts: 2 }
     );
   }
 
   /**
    * Video kalite kontrolü (thumbnail analizi)
-   * @param {string} orderId - Sipariş ID
-   * @param {string} thumbnailBase64 - Video thumbnail
-   * @param {object} originalAnalysis - Orijinal ürün analizi
-   * @returns {object} - Kalite kontrol sonucu
    */
   async qualityCheckVideo(orderId, thumbnailBase64, originalAnalysis) {
+    this._ensureInitialized();
+
     return withRetry(
       async () => {
+        if (!thumbnailBase64) {
+          logger.warn('No thumbnail provided for QC', { orderId });
+          return { ...DEFAULT_QC_RESULT, issues: ['No thumbnail provided'] };
+        }
+
         const prompt = `
 Üretilen video thumbnail'ını orijinal ürün bilgileriyle karşılaştır ve kalite kontrolü yap.
 
 ORİJİNAL ÜRÜN BİLGİLERİ:
-${JSON.stringify(originalAnalysis, null, 2)}
+${JSON.stringify(originalAnalysis || {}, null, 2)}
 
 JSON formatında değerlendir:
 
 {
-  "passed": true/false,
-  "overallScore": 1-10,
+  "passed": true,
+  "overallScore": 8,
   "checks": {
-    "productVisibility": { "score": 1-10, "note": "açıklama" },
-    "colorAccuracy": { "score": 1-10, "note": "açıklama" },
-    "professionalQuality": { "score": 1-10, "note": "açıklama" },
-    "commercialViability": { "score": 1-10, "note": "açıklama" }
+    "productVisibility": { "score": 8, "note": "açıklama" },
+    "colorAccuracy": { "score": 8, "note": "açıklama" },
+    "professionalQuality": { "score": 8, "note": "açıklama" },
+    "commercialViability": { "score": 8, "note": "açıklama" }
   },
-  "issues": ["varsa sorunlar listesi"],
-  "recommendation": "approve/revise/reject"
-}
-`;
+  "issues": [],
+  "recommendation": "approve"
+}`;
 
         const result = await withTimeout(
           this.flashModel.generateContent([
@@ -377,25 +454,20 @@ JSON formatında değerlendir:
               }
             }
           ]),
-          30000,
+          config.gemini.conceptTimeoutMs,
           'qualityCheck'
         );
 
         const response = result.response;
         const text = response.text();
 
-        const usage = response.usageMetadata;
-        if (usage) {
-          costTracker.addCost(orderId, 'gemini_flash_input', usage.promptTokenCount || 0);
-          costTracker.addCost(orderId, 'gemini_flash_output', usage.candidatesTokenCount || 0);
-        }
+        this._trackUsage(orderId, response.usageMetadata, 'flash');
 
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-          throw new Error('Geçerli QC JSON yanıtı alınamadı');
-        }
+        const qcResult = extractJsonFromText(text, DEFAULT_QC_RESULT, 'qualityCheck');
 
-        const qcResult = JSON.parse(jsonMatch[0]);
+        // Ensure required fields
+        qcResult.passed = qcResult.passed === true;
+        qcResult.overallScore = Number(qcResult.overallScore) || 0;
 
         logger.info('Video kalite kontrolü tamamlandı', {
           orderId,
@@ -405,18 +477,16 @@ JSON formatında değerlendir:
 
         return qcResult;
       },
-      { operationName: 'qualityCheckVideo' }
+      { operationName: 'qualityCheckVideo', maxAttempts: 2 }
     );
   }
 
   /**
    * Moderator karar mekanizması
-   * @param {string} orderId - Sipariş ID
-   * @param {object} context - Mevcut durum ve veriler
-   * @param {string} question - Karar gerektiren soru
-   * @returns {object} - Karar ve gerekçe
    */
   async moderatorDecision(orderId, context, question) {
+    this._ensureInitialized();
+
     return withRetry(
       async () => {
         const prompt = `
@@ -443,38 +513,40 @@ JSON formatında karar ver:
   "priority": "high/medium/low",
   "estimatedCost": "Tahmini maliyet (varsa)",
   "warnings": ["Varsa uyarılar"]
-}
-`;
+}`;
 
         const result = await withTimeout(
           this.flashModel.generateContent(prompt),
-          20000,
+          config.gemini.timeout || 20000,
           'moderatorDecision'
         );
 
         const response = result.response;
         const text = response.text();
 
-        const usage = response.usageMetadata;
-        if (usage) {
-          costTracker.addCost(orderId, 'gemini_flash_input', usage.promptTokenCount || 0);
-          costTracker.addCost(orderId, 'gemini_flash_output', usage.candidatesTokenCount || 0);
+        this._trackUsage(orderId, response.usageMetadata, 'flash');
+
+        const decision = extractJsonFromText(text, null, 'moderatorDecision');
+
+        // Parse başarısız olursa güvenli default döndür
+        if (!decision || !decision.decision) {
+          logger.warn('Failed to parse moderator decision, using safe default', { orderId });
+          return DEFAULT_DECISION;
         }
 
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-          return {
-            decision: 'proceed',
-            reasoning: 'Varsayılan karar',
-            nextAction: 'continue',
-            priority: 'medium',
-            warnings: []
-          };
+        // Decision validation
+        const validDecisions = ['proceed', 'pause', 'retry', 'escalate', 'abort'];
+        if (!validDecisions.includes(decision.decision)) {
+          logger.warn('Invalid decision value, defaulting to pause', {
+            orderId,
+            received: decision.decision
+          });
+          decision.decision = 'pause';
         }
 
-        return JSON.parse(jsonMatch[0]);
+        return decision;
       },
-      { operationName: 'moderatorDecision' }
+      { operationName: 'moderatorDecision', maxAttempts: 2 }
     );
   }
 }

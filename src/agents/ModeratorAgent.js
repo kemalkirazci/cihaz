@@ -21,7 +21,7 @@ import { costTracker } from '../utils/costTracker.js';
 export class ModeratorAgent extends BaseAgent {
   constructor() {
     super('Moderator', {
-      pollInterval: 10000 // 10 saniye
+      pollInterval: config.agents.moderatorPollInterval
     });
 
     this.contentAnalyzer = null;
@@ -77,7 +77,7 @@ export class ModeratorAgent extends BaseAgent {
         await this._logAction('loop_error', { error: error.message }, 'error');
 
         // Hata durumunda daha uzun bekle
-        await new Promise((resolve) => setTimeout(resolve, 30000));
+        await new Promise((resolve) => setTimeout(resolve, config.agents.errorRecoveryDelayMs));
       }
     }
   }

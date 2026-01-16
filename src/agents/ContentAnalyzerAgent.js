@@ -18,7 +18,7 @@ import { geminiService } from '../services/gemini.js';
 export class ContentAnalyzerAgent extends BaseAgent {
   constructor() {
     super('ContentAnalyzer', {
-      pollInterval: 5000,
+      pollInterval: config.agents.analyzerPollInterval,
       maxConcurrent: 2
     });
   }

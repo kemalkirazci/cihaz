@@ -6,10 +6,11 @@
 import { createAgentLogger } from '../utils/logger.js';
 import { sheetsService } from '../services/googleSheets.js';
 import { costTracker } from '../utils/costTracker.js';
+import { config as appConfig } from '../config/index.js';
 import { EventEmitter } from 'events';
 
 export class BaseAgent extends EventEmitter {
-  constructor(name, config = {}) {
+  constructor(name, agentConfig = {}) {
     super();
 
     this.name = name;
@@ -21,8 +22,8 @@ export class BaseAgent extends EventEmitter {
     this.errorCount = 0;
     this.config = {
       maxConcurrent: 1,
-      pollInterval: 5000,
-      ...config
+      pollInterval: appConfig.agents?.defaultPollInterval || 5000,
+      ...agentConfig
     };
 
     // Metriks
