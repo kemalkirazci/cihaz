@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rejista - Video Üretim Konsolu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #1e1e2e;
+      --darker: #11111b;
+      --card: #1e1e2e;
+      --text: #cdd6f4;
+      --text-muted: #6c7086;
+      --border: #313244;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--darker);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo i {
+      font-size: 1.5rem;
+    }
+
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .logo span {
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.2);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.15);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Main Container */
+    .container {
+      padding: 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .stat-icon.purple { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+    .stat-icon.green { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .stat-icon.yellow { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .stat-icon.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .stat-trend {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .stat-trend.up { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .stat-trend.down { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Agents Table */
+    .agents-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .agent-item {
+      background: var(--darker);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .agent-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .agent-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .agent-avatar.moderator { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .agent-avatar.analyzer { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+    .agent-avatar.production { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+
+    .agent-name {
+      font-weight: 500;
+    }
+
+    .agent-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .agent-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-indicator.working { background: var(--success); }
+    .status-indicator.idle { background: var(--warning); }
+    .status-indicator.paused { background: var(--text-muted); }
+    .status-indicator.error { background: var(--danger); }
+
+    /* Orders Table */
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .orders-table th,
+    .orders-table td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .orders-table th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .orders-table tbody tr:hover {
+      background: var(--darker);
+    }
+
+    .order-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .order-status.pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .order-status.producing { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+    .order-status.completed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .order-status.failed { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    /* Budget Progress */
+    .budget-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .budget-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .budget-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .budget-value {
+      font-weight: 600;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--darker);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-fill.safe { background: var(--success); }
+    .progress-fill.warning { background: var(--warning); }
+    .progress-fill.danger { background: var(--danger); }
+
+    /* Activity Log */
+    .activity-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .activity-icon.info { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+    .activity-icon.warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .activity-icon.error { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-text {
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background: var(--darker);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--darker);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <i class="fas fa-video"></i>
+      <h1>Rejista</h1>
+      <span>v1.0</span>
+    </div>
+    <div class="header-right">
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span id="systemStatus">Sistem Aktif</span>
+      </div>
+      <button class="btn btn-outline" onclick="refreshData()">
+        <i class="fas fa-sync-alt"></i>
+        Yenile
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon purple">
+            <i class="fas fa-shopping-bag"></i>
+          </div>
+          <span class="stat-trend up">+12%</span>
+        </div>
+        <div class="stat-value" id="totalOrders">0</div>
+        <div class="stat-label">Toplam Sipariş</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon green">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <span class="stat-trend up">+8%</span>
+        </div>
+        <div class="stat-value" id="completedOrders">0</div>
+        <div class="stat-label">Tamamlanan</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon yellow">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="totalCost">$0.00</div>
+        <div class="stat-label">Toplam Maliyet</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon red">
+            <i class="fas fa-chart-line"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="avgCost">$0.00</div>
+        <div class="stat-label">Ortalama Maliyet/Sipariş</div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Left Column -->
+      <div>
+        <!-- Recent Orders -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-list"></i>
+              Son Siparişler
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showNewOrderModal()">
+              <i class="fas fa-plus"></i>
+              Yeni Sipariş
+            </button>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th>Sipariş ID</th>
+                  <th>Müşteri</th>
+                  <th>Ürün</th>
+                  <th>Durum</th>
+                  <th>Maliyet</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <tr>
+                  <td colspan="5">
+                    <div class="empty-state">
+                      <i class="fas fa-inbox"></i>
+                      <p>Henüz sipariş yok</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- AI Agents -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-robot"></i>
+              AI Ajanları
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="agents-list" id="agentsList">
+              <!-- Agents will be populated here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div>
+        <!-- Budget -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-wallet"></i>
+              Bütçe Durumu
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="budget-section">
+              <div class="budget-header">
+                <span class="budget-label">Günlük Bütçe</span>
+                <span class="budget-value" id="dailyBudget">$0 / $100</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill safe" id="dailyProgress" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="budget-section">
+              <div class="budget-header">
+                <span class="budget-label">Aylık Bütçe</span>
+                <span class="budget-value" id="monthlyBudget">$0 / $2000</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill safe" id="monthlyProgress" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-history"></i>
+              Son Aktiviteler
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="activity-list" id="activityList">
+              <div class="activity-item">
+                <div class="activity-icon info">
+                  <i class="fas fa-power-off"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-text">Sistem başlatıldı</div>
+                  <div class="activity-time">Şimdi</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API Base URL
+    const API_BASE = '';
+
+    // Veri yenileme
+    async function refreshData() {
+      try {
+        // Sistem durumu
+        const statusRes = await fetch(`${API_BASE}/api/status`);
+        const status = await statusRes.json();
+
+        // İstatistikleri güncelle
+        if (status.budget) {
+          document.getElementById('totalCost').textContent =
+            `$${status.budget.dailyTotal?.toFixed(2) || '0.00'}`;
+
+          // Günlük bütçe
+          const dailyPct = status.budget.dailyBudget?.percentage || 0;
+          document.getElementById('dailyBudget').textContent =
+            `$${status.budget.dailyTotal?.toFixed(2) || '0'} / $${status.budget.dailyBudget?.limit || '100'}`;
+          document.getElementById('dailyProgress').style.width = `${dailyPct}%`;
+          updateProgressColor('dailyProgress', dailyPct);
+
+          // Aylık bütçe
+          const monthlyPct = status.budget.monthlyBudget?.percentage || 0;
+          document.getElementById('monthlyBudget').textContent =
+            `$${status.budget.monthlyTotal?.toFixed(2) || '0'} / $${status.budget.monthlyBudget?.limit || '2000'}`;
+          document.getElementById('monthlyProgress').style.width = `${monthlyPct}%`;
+          updateProgressColor('monthlyProgress', monthlyPct);
+
+          document.getElementById('avgCost').textContent =
+            `$${status.budget.averageCostPerOrder?.toFixed(2) || '0.00'}`;
+        }
+
+        // Ajanları güncelle
+        if (status.agents) {
+          updateAgentsList(status.agents);
+        }
+
+        // Siparişleri al
+        const ordersRes = await fetch(`${API_BASE}/api/orders`);
+        const orders = await ordersRes.json();
+
+        document.getElementById('totalOrders').textContent = orders.totalOrders || 0;
+        document.getElementById('completedOrders').textContent = orders.completedCount || 0;
+
+        // Aktivite ekle
+        addActivity('info', 'Veriler güncellendi', new Date().toLocaleTimeString('tr-TR'));
+
+      } catch (error) {
+        console.error('Veri yenileme hatası:', error);
+        addActivity('error', 'Veri yenileme başarısız', new Date().toLocaleTimeString('tr-TR'));
+      }
+    }
+
+    // Progress rengi güncelle
+    function updateProgressColor(elementId, percentage) {
+      const element = document.getElementById(elementId);
+      element.classList.remove('safe', 'warning', 'danger');
+
+      if (percentage < 60) {
+        element.classList.add('safe');
+      } else if (percentage < 85) {
+        element.classList.add('warning');
+      } else {
+        element.classList.add('danger');
+      }
+    }
+
+    // Ajan listesini güncelle
+    function updateAgentsList(agents) {
+      const container = document.getElementById('agentsList');
+
+      if (!agents || agents.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-robot"></i><p>Ajan bulunamadı</p></div>';
+        return;
+      }
+
+      container.innerHTML = agents.map(agent => {
+        const avatarClass = agent.name.includes('Moderator') ? 'moderator' :
+          agent.name.includes('Content') ? 'analyzer' : 'production';
+
+        const statusClass = agent.status || 'idle';
+
+        return `
+          <div class="agent-item">
+            <div class="agent-info">
+              <div class="agent-avatar ${avatarClass}">
+                <i class="fas ${avatarClass === 'moderator' ? 'fa-crown' :
+                  avatarClass === 'analyzer' ? 'fa-eye' : 'fa-film'}"></i>
+              </div>
+              <div>
+                <div class="agent-name">${agent.name}</div>
+                <div class="agent-role">Tamamlanan: ${agent.processedCount || 0}</div>
+              </div>
+            </div>
+            <div class="agent-status">
+              <span class="status-indicator ${statusClass}"></span>
+              <span>${statusClass === 'working' ? 'Çalışıyor' :
+                statusClass === 'paused' ? 'Duraklatıldı' :
+                  statusClass === 'error' ? 'Hata' : 'Beklemede'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Aktivite ekle
+    function addActivity(type, text, time) {
+      const container = document.getElementById('activityList');
+      const iconMap = {
+        success: 'fa-check',
+        info: 'fa-info',
+        warning: 'fa-exclamation',
+        error: 'fa-times'
+      };
+
+      const newActivity = document.createElement('div');
+      newActivity.className = 'activity-item';
+      newActivity.innerHTML = `
+        <div class="activity-icon ${type}">
+          <i class="fas ${iconMap[type] || 'fa-info'}"></i>
+        </div>
+        <div class="activity-content">
+          <div class="activity-text">${text}</div>
+          <div class="activity-time">${time}</div>
+        </div>
+      `;
+
+      container.insertBefore(newActivity, container.firstChild);
+
+      // Maksimum 10 aktivite tut
+      while (container.children.length > 10) {
+        container.removeChild(container.lastChild);
+      }
+    }
+
+    // Yeni sipariş modal (placeholder)
+    function showNewOrderModal() {
+      alert('Yeni sipariş ekleme özelliği yakında!');
+    }
+
+    // SSE ile canlı güncellemeler
+    function startLiveUpdates() {
+      const eventSource = new EventSource(`${API_BASE}/api/metrics/stream`);
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          // Ajanları güncelle
+          if (data.agents) {
+            updateAgentsList(data.agents);
+          }
+
+          // Bütçeyi güncelle
+          if (data.budget) {
+            const dailyPct = data.budget.dailyBudget?.percentage || 0;
+            document.getElementById('dailyProgress').style.width = `${dailyPct}%`;
+            updateProgressColor('dailyProgress', dailyPct);
+          }
+        } catch (error) {
+          console.error('SSE parse hatası:', error);
+        }
+      };
+
+      eventSource.onerror = () => {
+        console.warn('SSE bağlantısı koptu, yeniden bağlanılıyor...');
+        setTimeout(startLiveUpdates, 5000);
+      };
+    }
+
+    // Sayfa yüklendiğinde
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshData();
+      startLiveUpdates();
+
+      // Her 30 saniyede tam yenile
+      setInterval(refreshData, 30000);
+    });
+  </script>
+</body>
+</html>
